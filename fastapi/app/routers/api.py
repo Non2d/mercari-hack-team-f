@@ -1,6 +1,4 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import select
 from db import get_db
 from pydantic import BaseModel
 from log_conf import logger
@@ -17,9 +15,30 @@ class UserCreate(BaseModel):
     name: str
     email: str
 
-
 # routers
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import select
+
 router = APIRouter()
+
+# db models
+from db import Base
+from sqlalchemy import Column, Integer, String
+
+class TestProduct(Base):
+    __tablename__ = "test_products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), index=True)
+    description = Column(String(255), index=True)
+    price = Column(Integer, index=True)
+    category = Column(String(255), index=True)
+
+class User(Base):
+    __tablename__ = "users"
+    uid = Column(String(255), primary_key=True, index=True)
+    name = Column(String(255), index=True)
+    email = Column(String(255), unique=True, index=True)
 
 ## products (test)
 @router.get("/test-products")
@@ -70,25 +89,6 @@ async def find_or_create_user(user: UserCreate, db: AsyncSession = Depends(get_d
 
     # 新しいユーザーが作成されたので、201 Createdを返す
     return {"message": "New user created", "user": new_user}, 201
-
-# db models
-from db import Base
-from sqlalchemy import Column, Integer, String
-
-class TestProduct(Base):
-    __tablename__ = "test_products"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), index=True)
-    description = Column(String(255), index=True)
-    price = Column(Integer, index=True)
-    category = Column(String(255), index=True)
-
-class User(Base):
-    __tablename__ = "users"
-    uid = Column(String(255), primary_key=True, index=True)
-    name = Column(String(255), index=True)
-    email = Column(String(255), unique=True, index=True)
 
 # openai api
 import os

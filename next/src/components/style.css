@@ -1,0 +1,258 @@
+.element-homepage {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+}
+
+.element-homepage .div-2 {
+  background-color: #ffffff;
+  height: 844px;
+  overflow: hidden;
+  position: relative;
+  width: 390px;
+}
+
+.element-homepage .overlap {
+  height: 483px;
+  left: 0;
+  position: absolute;
+  top: 44px;
+  width: 390px;
+}
+
+.element-homepage .group {
+  background-image: url(https://c.animaapp.com/IDCOmvpi/img/rectangle-199@2x.png);
+  background-size: 100% 100%;
+  height: 404px;
+  left: 0;
+  position: absolute;
+  top: 79px;
+  width: 390px;
+}
+
+.element-homepage .top {
+  background-color: #ffffff;
+  height: 79px;
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  width: 390px;
+}
+
+.element-homepage .overlap-2 {
+  height: 85px;
+  left: 6px;
+  position: relative;
+  width: 380px;
+}
+
+.element-homepage .overlap-3 {
+  height: 85px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 380px;
+}
+
+.element-homepage .icon-shopping-cart-2 {
+  left: 332px !important;
+  position: absolute !important;
+  top: 0 !important;
+}
+
+.element-homepage .icon-heart-favorite {
+  height: 48px !important;
+  left: 286px !important;
+  position: absolute !important;
+  top: 0 !important;
+  width: 48px !important;
+}
+
+.element-homepage .frame-wrapper {
+  height: 46px;
+  left: 0;
+  position: absolute;
+  top: 39px;
+  width: 379px;
+}
+
+.element-homepage .frame-2 {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  left: 10px;
+  padding: 3px 0px 0px;
+  position: relative;
+  top: 15px;
+  width: 358px;
+}
+
+.element-homepage .text-wrapper-2 {
+  color: var(--flower-4);
+  font-family: "Work Sans", Helvetica;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 22px;
+  margin-top: -1px;
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.element-homepage .text-wrapper-3 {
+  color: #000000;
+  font-family: "Work Sans", Helvetica;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 22px;
+  margin-top: -1px;
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.element-homepage .interests {
+  color: #000000;
+  font-family: "Work Sans", Helvetica;
+  font-size: 20px;
+  font-weight: 700;
+  height: 22px;
+  left: 57px;
+  letter-spacing: 0;
+  line-height: 22px;
+  position: absolute;
+  top: 12px;
+  white-space: nowrap;
+}
+
+.element-homepage .line {
+  height: 2px;
+  left: 0;
+  position: absolute;
+  top: 78px;
+  width: 104px;
+}
+
+.element-homepage .frame-208 {
+  height: 44px !important;
+  left: 41px !important;
+  position: absolute !important;
+  top: 385px !important;
+  width: 307px !important;
+}
+
+.element-homepage .frame-instance {
+  margin-bottom: -1px !important;
+  margin-top: -3px !important;
+}
+
+.element-homepage .div-wrapper {
+  align-items: center;
+  background-color: var(--flower-1);
+  border-radius: 15px;
+  box-shadow: var(--google-shadow-1);
+  display: flex;
+  gap: 8px;
+  height: 26px;
+  justify-content: center;
+  left: 78px;
+  padding: 12px;
+  position: absolute;
+  top: 439px;
+  width: 233px;
+}
+
+.element-homepage .text-wrapper-4 {
+  color: var(--flower-4);
+  font-family: "Work Sans", Helvetica;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  line-height: 12px;
+  margin-bottom: -4px;
+  margin-top: -6px;
+  position: relative;
+  white-space: nowrap;
+  width: fit-content;
+}
+
+.element-homepage .overlap-group-wrapper {
+  height: 229px;
+  left: 0;
+  position: absolute;
+  top: 530px;
+  width: 197px;
+}
+
+.element-homepage .overlap-group-2 {
+  background-image: url(https://c.animaapp.com/IDCOmvpi/img/rectangle-199-1@2x.png);
+  background-size: 100% 100%;
+  height: 229px;
+  position: relative;
+  width: 195px;
+}
+
+.element-homepage .p {
+  box-shadow: var(--google-shadow-1);
+  color: #ffffff;
+  font-family: "Work Sans", Helvetica;
+  font-size: 14px;
+  font-weight: 500;
+  left: 16px;
+  letter-spacing: 0;
+  line-height: 14px;
+  position: absolute;
+  text-shadow: 0px 1px 3px 1px #00000026;
+  top: 158px;
+  width: 138px;
+}
+
+.element-homepage .overlap-wrapper {
+  height: 229px;
+  left: 197px;
+  position: absolute;
+  top: 530px;
+  width: 195px;
+}
+
+.element-homepage .overlap-4 {
+  background-image: url(https://c.animaapp.com/IDCOmvpi/img/rectangle-199-2@2x.png);
+  background-size: 100% 100%;
+  height: 229px;
+  position: relative;
+  width: 193px;
+}
+
+.element-homepage .text-wrapper-5 {
+  box-shadow: var(--google-shadow-1);
+  color: #ffffff;
+  font-family: "Work Sans", Helvetica;
+  font-size: 14px;
+  font-weight: 500;
+  left: 16px;
+  letter-spacing: 0;
+  line-height: 14px;
+  position: absolute;
+  text-shadow: 0px 1px 3px 1px #00000026;
+  top: 158px;
+  width: 121px;
+}
+
+.element-homepage .footer-instance {
+  left: 0 !important;
+  position: absolute !important;
+  top: 759px !important;
+}
+
+.element-homepage .design-component-instance-node {
+  width: 390px !important;
+}
+
+.element-homepage .footer-2 {
+  color: var(--flower-5) !important;
+}
