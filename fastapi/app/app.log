@@ -1,0 +1,70 @@
+2024-09-24 08:22:07,096 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2024-09-24 08:22:07,097 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2024-09-24 08:22:07,099 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2024-09-24 08:22:07,100 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2024-09-24 08:22:07,101 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2024-09-24 08:22:07,102 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2024-09-24 08:22:07,104 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-09-24 08:22:07,105 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2024-09-24 08:22:07,106 - sqlalchemy.engine.Engine - INFO - [generated in 0.00234s] {}
+2024-09-24 08:22:07,108 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-09-24 08:22:07,109 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-09-24 08:22:07,109 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mercari`.`test_products`
+2024-09-24 08:22:07,110 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2024-09-24 08:22:07,114 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mercari`.`users`
+2024-09-24 08:22:07,115 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2024-09-24 08:22:07,117 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-09-24 08:22:07,118 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-09-24 08:22:07,118 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mercari`.`test_products`
+2024-09-24 08:22:07,118 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2024-09-24 08:22:07,119 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mercari`.`users`
+2024-09-24 08:22:07,119 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2024-09-24 08:22:07,120 - sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE test_products (
+	id INTEGER NOT NULL AUTO_INCREMENT, 
+	name VARCHAR(255), 
+	description VARCHAR(255), 
+	price INTEGER, 
+	category VARCHAR(255), 
+	PRIMARY KEY (id)
+)
+
+
+2024-09-24 08:22:07,120 - sqlalchemy.engine.Engine - INFO - [no key 0.00025s] {}
+2024-09-24 08:22:07,132 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_test_products_id ON test_products (id)
+2024-09-24 08:22:07,132 - sqlalchemy.engine.Engine - INFO - [no key 0.00070s] {}
+2024-09-24 08:22:07,142 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_test_products_description ON test_products (description)
+2024-09-24 08:22:07,142 - sqlalchemy.engine.Engine - INFO - [no key 0.00038s] {}
+2024-09-24 08:22:07,151 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_test_products_price ON test_products (price)
+2024-09-24 08:22:07,152 - sqlalchemy.engine.Engine - INFO - [no key 0.00029s] {}
+2024-09-24 08:22:07,159 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_test_products_category ON test_products (category)
+2024-09-24 08:22:07,160 - sqlalchemy.engine.Engine - INFO - [no key 0.00036s] {}
+2024-09-24 08:22:07,170 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_test_products_name ON test_products (name)
+2024-09-24 08:22:07,170 - sqlalchemy.engine.Engine - INFO - [no key 0.00028s] {}
+2024-09-24 08:22:07,181 - sqlalchemy.engine.Engine - INFO - 
+CREATE TABLE users (
+	uid VARCHAR(255) NOT NULL, 
+	name VARCHAR(255), 
+	email VARCHAR(255), 
+	PRIMARY KEY (uid)
+)
+
+
+2024-09-24 08:22:07,182 - sqlalchemy.engine.Engine - INFO - [no key 0.00066s] {}
+2024-09-24 08:22:07,192 - sqlalchemy.engine.Engine - INFO - CREATE UNIQUE INDEX ix_users_email ON users (email)
+2024-09-24 08:22:07,192 - sqlalchemy.engine.Engine - INFO - [no key 0.00025s] {}
+2024-09-24 08:22:07,204 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_users_uid ON users (uid)
+2024-09-24 08:22:07,204 - sqlalchemy.engine.Engine - INFO - [no key 0.00035s] {}
+2024-09-24 08:22:07,214 - sqlalchemy.engine.Engine - INFO - CREATE INDEX ix_users_name ON users (name)
+2024-09-24 08:22:07,214 - sqlalchemy.engine.Engine - INFO - [no key 0.00045s] {}
+2024-09-24 08:22:07,222 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-09-24 08:22:35,533 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-09-24 08:22:35,547 - log_conf - INFO - ChatCompletionMessage(content='A function calls self,  \nInfinite paths intertwine,  \nLogic circles back.', refusal=None, role='assistant', function_call=None, tool_calls=None)
+2024-09-24 08:24:59,301 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-09-24 08:24:59,311 - log_conf - INFO - ChatCompletionMessage(content='Silent circuits hum,  \nThoughts born in silicon dreams—  \nMind of code awakes.', refusal=None, role='assistant', function_call=None, tool_calls=None)
+2024-09-24 08:25:25,109 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-09-24 08:25:25,121 - log_conf - INFO - ChatCompletionMessage(content='Silent circuits hum,  \nInfinite code dreams awake—  \nMetal thoughts in bloom.', refusal=None, role='assistant', function_call=None, tool_calls=None)
+2024-09-24 08:25:57,729 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-09-24 08:25:57,743 - log_conf - INFO - ChatCompletionMessage(content='Shohei Ohtani is a professional baseball player from Japan, widely regarded for his exceptional talent both as a pitcher and as a hitter. Born on July 5, 1994, Ohtani has achieved significant acclaim in Major League Baseball (MLB) as a member of the Los Angeles Angels. He is often referred to as a "two-way player," a rare distinction in modern baseball, because he excels both on the mound as a pitcher and at the plate as a designated hitter or outfielder.\n\nOhtani initially gained fame in Japan while playing for the Hokkaido Nippon-Ham Fighters in Nippon Professional Baseball (NPB), where he was a standout star before making the jump to MLB. In 2018, his first season with the Angels, Ohtani quickly made an impact and was named the American League Rookie of the Year. His remarkable performances have continued to capture the attention of baseball fans and analysts alike.\n\nOhtani\'s unique ability to succeed in both pitching and hitting roles has drawn comparisons to legendary players like Babe Ruth, who was also known for excelling in both areas. In 2021, Ohtani had an extraordinary season that earned him the American League Most Valuable Player (MVP) award, solidifying his status as one of the top talents in baseball.', refusal=None, role='assistant', function_call=None, tool_calls=None)
+2024-09-24 08:28:52,065 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2024-09-24 08:34:08,580 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"

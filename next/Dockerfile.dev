@@ -1,0 +1,10 @@
+FROM node:lts-alpine3.19
+
+WORKDIR /app/
+
+# package.jsonとpackage-lock.jsonをコピー
+COPY package.json package-lock.json ./
+
+RUN npm install
+
+COPY . .
