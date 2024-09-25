@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routers import api
 from routers import buyer
-# from routers import seller
+from routers import seller
 
 app = FastAPI(docs_url="/docs", openapi_url="/openapi.json")
 
@@ -22,4 +22,4 @@ def helloworld():
 
 app.include_router(api.router)
 app.include_router(buyer.router)
-# app.include_router(seller.router)
+app.include_router(seller.router)

@@ -5,26 +5,16 @@ from sqlalchemy.sql import select
 from db import get_db
 from pydantic import BaseModel
 from log_conf import logger
-from db import Base
-from sqlalchemy import Column, Integer, String
-
-# db models
-class SearchHistory(Base):
-    __tablename__ = "search_history"
-
-    id = Column(Integer, primary_key=True, index=True)
-    query = Column(String(255), unique=True, index=True)
-    count = Column(Integer)
+from models.buyer import SearchHistory
 
 # api schema
 class SearchHistoryCreate(BaseModel):
     query: str
-    count: int
+    # count: int # 将来的にインクリメントの責任をクライアントに移管..と思ったけど、いらないか
 
 # routers
 router = APIRouter()
 
-## seacrh history
 @router.get("/search-history")
 async def read_search_history(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(SearchHistory))

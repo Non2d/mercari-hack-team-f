@@ -2,8 +2,7 @@ import time
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
 from routers.api import Base as ApiBase
-from routers.buyer import Base as BuyerBase
-# from routers.seller import Base as SellerBase
+from models.buyer import Base as BuyerBase
 
 DB_URL = "mysql+pymysql://root@db:3306/mercari?charset=utf8"
 engine = create_engine(DB_URL, echo=True)
@@ -26,7 +25,7 @@ def wait_for_db_connection(max_retries=5, wait_interval=5):
 def reset_database():
     if wait_for_db_connection():
         for base in [ApiBase, BuyerBase]:
-            base.metadata.drop_all(engine) #これをONにすると、docker compose upするびにテーブルの中身がリセットされる
+            # base.metadata.drop_all(engine) #これをONにすると、docker compose upするびにテーブルの中身がリセットされる
             base.metadata.create_all(engine)
         print("Database reset successful.")
     else:
