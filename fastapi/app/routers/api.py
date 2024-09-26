@@ -3,6 +3,7 @@ import base64
 from fastapi import APIRouter, Depends, File, UploadFile
 from db import get_db
 from models.products import Product
+from models.buyer import SearchHistory
 from pydantic import BaseModel
 from log_conf import logger
 from openai import OpenAI
@@ -108,7 +109,7 @@ client=AsyncOpenAI()
 @router.get("/openai")
 async def get_openai():
     completion = await client.chat.completions.create(
-    model="gpt-4o",
+    model="gpt-4o-2024-08-06",
     messages=[
         {"role": "user", "content": "Who is Shohei Ohtani?"}
     ]
@@ -138,25 +139,57 @@ async def get_openai_math():
     math_reasoning = completion.choices[0].message.parsed
     return math_reasoning
 
+
 # Upload Image
 @router.post("/upload")
-async def create_upload_file(file: UploadFile = File(...)):
+async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
     with open(f"static/{file.filename}", "wb") as buffer:
         data = await file.read()
         buffer.write(data)
 
-
-
     result = sentToOpenai(base64.b64encode(data).decode("utf-8"))
+    # - book_list
+    #  - item x
+    #     - title
+    #     - image_url
+    #     - count
+    # 1-3 easy to sell
+    # 4-8 maybe sold
+    # 9-  useless
 
+    book_list = []
+    for book in result:
+        title = book['title']
+        image_url = book['image_url']
 
+        # Get the count
+        count_result = await db.execute(select(SearchHistory.count).where(SearchHistory.query==title))
+        count = count_result.scalars().first()
+        if count is None:
+            count = 0
 
-    return result
+        book_list.append((count, image_url, title))
+
+    book_list.sort(key=lambda x: x[0], reverse=True)
+
+    response = {}
+    cnt = 1
+    for item in book_list:
+        new_item = {}
+        new_item['title'] = item[2]
+        new_item['image_url'] = item[1]
+        new_item['count'] = item[0]
+        response[f'item{cnt}'] = new_item
+        cnt += 1
+
+    json_data = json.dumps(response, ensure_ascii=False)
+
+    return json_data
+
 
 def sentToOpenai(image):
     load_dotenv()
 
-    import os
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
     # 縦向きの画像が来ることを想定するため，いらないかも
@@ -212,9 +245,11 @@ def sentToOpenai(image):
     def get_book_info(tags_json):
         # Parse the JSON response to extract titles and authors
         book_data = json.loads(tags_json)
-        print(book_data)
+        ret = []
+
         # Iterate over each book and query the Google Books API
         for book in book_data['title']:
+            new_item = {}
             title = book['title']
             print(f"Searching for Title: {title}")
 
@@ -232,28 +267,24 @@ def sentToOpenai(image):
                     # Get the first item
                     item = book_info['items'][0]
                     volume_info = item['volumeInfo']
-                    # Print desired information
-                    print("Title:", volume_info.get('title', 'N/A'))
-                    print("Authors:", volume_info.get('authors', 'N/A'))
-                    print("Publisher:", volume_info.get('publisher', 'N/A'))
-                    print("Published Date:", volume_info.get('publishedDate', 'N/A'))
-                    print("Description:", volume_info.get('description', 'N/A'))
-                    print("Page Count:", volume_info.get('pageCount', 'N/A'))
-                    print("Categories:", volume_info.get('categories', 'N/A'))
-                    print("Average Rating:", volume_info.get('averageRating', 'N/A'))
-                    print("Ratings Count:", volume_info.get('ratingsCount', 'N/A'))
-                    print("Thumbnail:", volume_info.get('imageLinks', {}).get('thumbnail', 'N/A'))
-                    print("=" * 40)
+                    new_item['title'] = book['title']
+                    new_item['image_url'] = volume_info.get('imageLinks', {}).get('thumbnail', 'N/A')
                 else:
+                    new_item['title'] = title
+                    new_item['image_url'] = ""
                     print("No results found for this book.")
             else:
                 print(f"Failed to retrieve data from Google Books API. Status code: {response.status_code}")
+            ret.append(new_item)
+
+        return ret
+
 
     # 画像を正しい向きに回転
     # rotate_image(image)
     # 画像からテキストを抽出
     tags_json = book_ocr(image)
     # Google Books APIを使用して書籍情報を取得
-    # get_book_info(tags_json)
+    book_info = get_book_info(tags_json)
 
-    return tags_json
+    return book_info
