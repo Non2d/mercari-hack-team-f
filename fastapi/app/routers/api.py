@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, UploadFile
 from db import get_db
 from pydantic import BaseModel
 from log_conf import logger
@@ -130,3 +130,10 @@ async def get_openai_math():
     )
     math_reasoning = completion.choices[0].message.parsed
     return math_reasoning
+
+@router.post("/upload")
+async def create_upload_file(file: UploadFile = File(...)):
+    with open(f"static/{file.filename}", "wb") as buffer:
+        data = await file.read()
+        buffer.write(data)
+    return {"filename": file.filename}
