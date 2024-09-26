@@ -38,7 +38,7 @@ services:
       MYSQL_DATABASE: "mercari"
       TZ: "Asia/Tokyo"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data_mercari:/var/lib/mysql
 
   phpmyadmin:
     container_name: mercari-dbconsole
@@ -48,4 +48,4 @@ services:
   
 volumes:
   node_modules:
-  mysql_data:
+  mysql_data_mercari:
