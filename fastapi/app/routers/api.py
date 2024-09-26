@@ -378,3 +378,13 @@ async def register_products(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail= str(e)
         )
+    
+# 商品一覧取得
+
+# 
+@router.get("/products", response_model=List[ProductResponse])
+async def get_products(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Product))
+    db_products = result.scalars().all()
+    return db_products
+
