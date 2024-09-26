@@ -1,7 +1,21 @@
-from fastapi import APIRouter, Depends
+import base64
+
+from fastapi import APIRouter, Depends, File, UploadFile
 from db import get_db
+from models.products import Product
+from models.buyer import SearchHistory
 from pydantic import BaseModel
 from log_conf import logger
+from openai import OpenAI
+import openai
+import base64
+from pydantic import BaseModel
+import os
+# from PIL import Image
+import json
+import requests
+from urllib.parse import quote
+from dotenv import load_dotenv
 
 # api schema
 class TestProductCreate(BaseModel):
@@ -18,6 +32,7 @@ class UserCreate(BaseModel):
 # routers
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select
+from sqlalchemy.orm import relationship
 
 router = APIRouter()
 
@@ -25,40 +40,33 @@ router = APIRouter()
 from db import Base
 from sqlalchemy import Column, Integer, String
 
-class TestProduct(Base):
-    __tablename__ = "test_products"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), index=True)
-    description = Column(String(255), index=True)
-    price = Column(Integer, index=True)
-    category = Column(String(255), index=True)
-
 class User(Base):
     __tablename__ = "users"
     uid = Column(String(255), primary_key=True, index=True)
     name = Column(String(255), index=True)
     email = Column(String(255), unique=True, index=True)
 
-## products (test)
-@router.get("/test-products")
-async def read_products(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(TestProduct))
-    db_products = result.scalars().all()
-    return db_products
+    products = relationship('Product', back_populates='user')
 
-@router.post("/test-product")
-async def create_product(product: TestProductCreate, db: AsyncSession = Depends(get_db)):
-    db_product = TestProduct(
-        name=product.name,
-        description=product.description,
-        price=product.price,
-        category=product.category
-    )
-    db.add(db_product)
-    await db.commit()
-    await db.refresh(db_product)
-    return db_product
+## products (test)
+# @router.get("/test-products")
+# async def read_products(db: AsyncSession = Depends(get_db)):
+#     result = await db.execute(select(TestProduct))
+#     db_products = result.scalars().all()
+#     return db_products
+#
+# @router.post("/test-product")
+# async def create_product(product: TestProductCreate, db: AsyncSession = Depends(get_db)):
+#     db_product = TestProduct(
+#         name=product.name,
+#         description=product.description,
+#         price=product.price,
+#         category=product.category
+#     )
+#     db.add(db_product)
+#     await db.commit()
+#     await db.refresh(db_product)
+#     return db_product
 
 ## users
 @router.get("/users")
@@ -101,7 +109,7 @@ client=AsyncOpenAI()
 @router.get("/openai")
 async def get_openai():
     completion = await client.chat.completions.create(
-    model="gpt-4o",
+    model="gpt-4o-2024-08-06",
     messages=[
         {"role": "user", "content": "Who is Shohei Ohtani?"}
     ]
@@ -130,3 +138,153 @@ async def get_openai_math():
     )
     math_reasoning = completion.choices[0].message.parsed
     return math_reasoning
+
+
+# Upload Image
+@router.post("/upload")
+async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
+    with open(f"static/{file.filename}", "wb") as buffer:
+        data = await file.read()
+        buffer.write(data)
+
+    result = sentToOpenai(base64.b64encode(data).decode("utf-8"))
+    # - book_list
+    #  - item x
+    #     - title
+    #     - image_url
+    #     - count
+    # 1-3 easy to sell
+    # 4-8 maybe sold
+    # 9-  useless
+
+    book_list = []
+    for book in result:
+        title = book['title']
+        image_url = book['image_url']
+
+        # Get the count
+        count_result = await db.execute(select(SearchHistory.count).where(SearchHistory.query==title))
+        count = count_result.scalars().first()
+        if count is None:
+            count = 0
+
+        book_list.append((count, image_url, title))
+
+    book_list.sort(key=lambda x: x[0], reverse=True)
+
+    response = {}
+    cnt = 1
+    for item in book_list:
+        new_item = {}
+        new_item['title'] = item[2]
+        new_item['image_url'] = item[1]
+        new_item['count'] = item[0]
+        response[f'item{cnt}'] = new_item
+        cnt += 1
+
+    json_data = json.dumps(response, ensure_ascii=False)
+
+    return json_data
+
+
+def sentToOpenai(image):
+    load_dotenv()
+
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
+    # 縦向きの画像が来ることを想定するため，いらないかも
+    # def rotate_image(file_path):
+    #     with Image.open(file_path) as img:
+    #         width, height = img.size
+    #         if width > height:
+    #             # 横向きの画像を90度回転
+    #             rotated_img = img.rotate(-90, expand=True)
+    #             # 回転した画像を保存（元のファイルを上書きします）
+    #             rotated_img.save(file_path)
+    #         else:
+    #             # 縦向きの画像はそのまま
+    #             pass
+
+    # GPT-4oを使用して，画像から本のタイトルと著者を抽出
+    def book_ocr(input_image):
+        # Open the image file and encode it as a base64 string
+        # def encode_image(image_path):
+        #     with open(image_path, "rb") as image_file:
+        #         return base64.b64encode(image_file.read()).decode("utf-8")
+
+        base64_image = input_image
+
+        # Set the API key and model name
+        MODEL = "gpt-4o"
+        client = OpenAI(api_key=OPENAI_API_KEY)
+
+        class book_metadata(BaseModel):
+            title: str
+
+        class titles(BaseModel):
+            title: list[book_metadata]
+
+        response = client.beta.chat.completions.parse(
+            model=MODEL,
+            messages=[
+                {"role": "system", "content": "この画像にある本のタイトルを抽出してください．"},
+                {"role": "user", "content": [
+                    {"type": "image_url", "image_url": {
+                        "url": f"data:image/jpg;base64,{base64_image}",
+                        "detail": "high"}
+                     }
+                ]}
+            ],
+            tools=[openai.pydantic_function_tool(titles)],
+            temperature=0.0,
+        )
+
+        tags_json = response.choices[0].message.tool_calls[0].function.arguments
+        return tags_json
+
+    def get_book_info(tags_json):
+        # Parse the JSON response to extract titles and authors
+        book_data = json.loads(tags_json)
+        ret = []
+
+        # Iterate over each book and query the Google Books API
+        for book in book_data['title']:
+            new_item = {}
+            title = book['title']
+            print(f"Searching for Title: {title}")
+
+            # Construct the query and encode it
+            query = f"intitle:{title}"
+            encoded_query = quote(query)
+            url = f"https://www.googleapis.com/books/v1/volumes?q={encoded_query}"
+
+            # Make the request to the Google Books API
+            response = requests.get(url)
+            if response.status_code == 200:
+                book_info = response.json()
+                # Check if any items were found
+                if 'items' in book_info and len(book_info['items']) > 0:
+                    # Get the first item
+                    item = book_info['items'][0]
+                    volume_info = item['volumeInfo']
+                    new_item['title'] = book['title']
+                    new_item['image_url'] = volume_info.get('imageLinks', {}).get('thumbnail', 'N/A')
+                else:
+                    new_item['title'] = title
+                    new_item['image_url'] = ""
+                    print("No results found for this book.")
+            else:
+                print(f"Failed to retrieve data from Google Books API. Status code: {response.status_code}")
+            ret.append(new_item)
+
+        return ret
+
+
+    # 画像を正しい向きに回転
+    # rotate_image(image)
+    # 画像からテキストを抽出
+    tags_json = book_ocr(image)
+    # Google Books APIを使用して書籍情報を取得
+    book_info = get_book_info(tags_json)
+
+    return book_info

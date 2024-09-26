@@ -6,3 +6,6 @@ python-dotenv
 sqlalchemy
 aiomysql
 pymysql
+requests
+matplotlib
+python-multipart

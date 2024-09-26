@@ -105,5 +105,6 @@
     {"query": "STUSSY スウェット", "count": 4},
     {"query": "A BATHING APE キャップ", "count": 3},
     {"query": "OFF-WHITE スニーカー", "count": 9},
-    {"query": "STONE ISLAND ジャケット", "count": 7}
+    {"query": "STONE ISLAND ジャケット", "count": 7},
+    {"query": "兎の眼", "count": 7}
 ]
