@@ -1,7 +1,20 @@
+import base64
+
 from fastapi import APIRouter, Depends, File, UploadFile
 from db import get_db
+from models.products import Product
 from pydantic import BaseModel
 from log_conf import logger
+from openai import OpenAI
+import openai
+import base64
+from pydantic import BaseModel
+import os
+# from PIL import Image
+import json
+import requests
+from urllib.parse import quote
+from dotenv import load_dotenv
 
 # api schema
 class TestProductCreate(BaseModel):
@@ -18,6 +31,7 @@ class UserCreate(BaseModel):
 # routers
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select
+from sqlalchemy.orm import relationship
 
 router = APIRouter()
 
@@ -124,9 +138,122 @@ async def get_openai_math():
     math_reasoning = completion.choices[0].message.parsed
     return math_reasoning
 
+# Upload Image
 @router.post("/upload")
 async def create_upload_file(file: UploadFile = File(...)):
     with open(f"static/{file.filename}", "wb") as buffer:
         data = await file.read()
         buffer.write(data)
-    return {"filename": file.filename}
+
+
+
+    result = sentToOpenai(base64.b64encode(data).decode("utf-8"))
+
+
+
+    return result
+
+def sentToOpenai(image):
+    load_dotenv()
+
+    import os
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
+    # 縦向きの画像が来ることを想定するため，いらないかも
+    # def rotate_image(file_path):
+    #     with Image.open(file_path) as img:
+    #         width, height = img.size
+    #         if width > height:
+    #             # 横向きの画像を90度回転
+    #             rotated_img = img.rotate(-90, expand=True)
+    #             # 回転した画像を保存（元のファイルを上書きします）
+    #             rotated_img.save(file_path)
+    #         else:
+    #             # 縦向きの画像はそのまま
+    #             pass
+
+    # GPT-4oを使用して，画像から本のタイトルと著者を抽出
+    def book_ocr(input_image):
+        # Open the image file and encode it as a base64 string
+        # def encode_image(image_path):
+        #     with open(image_path, "rb") as image_file:
+        #         return base64.b64encode(image_file.read()).decode("utf-8")
+
+        base64_image = input_image
+
+        # Set the API key and model name
+        MODEL = "gpt-4o"
+        client = OpenAI(api_key=OPENAI_API_KEY)
+
+        class book_metadata(BaseModel):
+            title: str
+
+        class titles(BaseModel):
+            title: list[book_metadata]
+
+        response = client.beta.chat.completions.parse(
+            model=MODEL,
+            messages=[
+                {"role": "system", "content": "この画像にある本のタイトルを抽出してください．"},
+                {"role": "user", "content": [
+                    {"type": "image_url", "image_url": {
+                        "url": f"data:image/jpg;base64,{base64_image}",
+                        "detail": "high"}
+                     }
+                ]}
+            ],
+            tools=[openai.pydantic_function_tool(titles)],
+            temperature=0.0,
+        )
+
+        tags_json = response.choices[0].message.tool_calls[0].function.arguments
+        return tags_json
+
+    def get_book_info(tags_json):
+        # Parse the JSON response to extract titles and authors
+        book_data = json.loads(tags_json)
+        print(book_data)
+        # Iterate over each book and query the Google Books API
+        for book in book_data['title']:
+            title = book['title']
+            print(f"Searching for Title: {title}")
+
+            # Construct the query and encode it
+            query = f"intitle:{title}"
+            encoded_query = quote(query)
+            url = f"https://www.googleapis.com/books/v1/volumes?q={encoded_query}"
+
+            # Make the request to the Google Books API
+            response = requests.get(url)
+            if response.status_code == 200:
+                book_info = response.json()
+                # Check if any items were found
+                if 'items' in book_info and len(book_info['items']) > 0:
+                    # Get the first item
+                    item = book_info['items'][0]
+                    volume_info = item['volumeInfo']
+                    # Print desired information
+                    print("Title:", volume_info.get('title', 'N/A'))
+                    print("Authors:", volume_info.get('authors', 'N/A'))
+                    print("Publisher:", volume_info.get('publisher', 'N/A'))
+                    print("Published Date:", volume_info.get('publishedDate', 'N/A'))
+                    print("Description:", volume_info.get('description', 'N/A'))
+                    print("Page Count:", volume_info.get('pageCount', 'N/A'))
+                    print("Categories:", volume_info.get('categories', 'N/A'))
+                    print("Average Rating:", volume_info.get('averageRating', 'N/A'))
+                    print("Ratings Count:", volume_info.get('ratingsCount', 'N/A'))
+                    print("Thumbnail:", volume_info.get('imageLinks', {}).get('thumbnail', 'N/A'))
+                    print("=" * 40)
+                else:
+                    print("No results found for this book.")
+            else:
+                print(f"Failed to retrieve data from Google Books API. Status code: {response.status_code}")
+
+    # 画像を正しい向きに回転
+    # rotate_image(image)
+    # 画像からテキストを抽出
+    tags_json = book_ocr(image)
+    # Google Books APIを使用して書籍情報を取得
+    # get_book_info(tags_json)
+
+    return tags_json

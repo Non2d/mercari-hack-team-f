@@ -24,7 +24,7 @@ class Product(Base):
     __tablename__ = 'products'
 
     ProductID = Column(Integer, primary_key=True, autoincrement=True)
-    UserID = Column(Integer, ForeignKey('users.UserID'), nullable=False)
+    UserID = Column(Integer, ForeignKey('users.uid'), nullable=False)
     Title = Column(String(255), nullable=False)
     Description = Column(Text)
     Price = Column(DECIMAL(10, 2))
