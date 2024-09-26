@@ -25,40 +25,33 @@ router = APIRouter()
 from db import Base
 from sqlalchemy import Column, Integer, String
 
-class TestProduct(Base):
-    __tablename__ = "test_products"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), index=True)
-    description = Column(String(255), index=True)
-    price = Column(Integer, index=True)
-    category = Column(String(255), index=True)
-
 class User(Base):
     __tablename__ = "users"
     uid = Column(String(255), primary_key=True, index=True)
     name = Column(String(255), index=True)
     email = Column(String(255), unique=True, index=True)
 
-## products (test)
-@router.get("/test-products")
-async def read_products(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(TestProduct))
-    db_products = result.scalars().all()
-    return db_products
+    products = relationship('Product', back_populates='user')
 
-@router.post("/test-product")
-async def create_product(product: TestProductCreate, db: AsyncSession = Depends(get_db)):
-    db_product = TestProduct(
-        name=product.name,
-        description=product.description,
-        price=product.price,
-        category=product.category
-    )
-    db.add(db_product)
-    await db.commit()
-    await db.refresh(db_product)
-    return db_product
+## products (test)
+# @router.get("/test-products")
+# async def read_products(db: AsyncSession = Depends(get_db)):
+#     result = await db.execute(select(TestProduct))
+#     db_products = result.scalars().all()
+#     return db_products
+#
+# @router.post("/test-product")
+# async def create_product(product: TestProductCreate, db: AsyncSession = Depends(get_db)):
+#     db_product = TestProduct(
+#         name=product.name,
+#         description=product.description,
+#         price=product.price,
+#         category=product.category
+#     )
+#     db.add(db_product)
+#     await db.commit()
+#     await db.refresh(db_product)
+#     return db_product
 
 ## users
 @router.get("/users")
