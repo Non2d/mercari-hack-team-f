@@ -336,8 +336,6 @@ from sqlalchemy.future import select
 from typing import List
 import logging
 
-
-router = APIRouter()
 logger = logging.getLogger(__name__)
 
 @router.post("/products", status_code=status.HTTP_201_CREATED, response_model=List[ProductResponse])

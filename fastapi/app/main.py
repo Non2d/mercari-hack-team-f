@@ -33,6 +33,7 @@ def helloworld():
     return HTMLResponse(content=content)
     # return {"Hello": "FastAPI is running :)"}
 
+
 app.include_router(api.router)
 app.include_router(buyer.router)
 app.include_router(seller.router)
