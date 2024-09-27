@@ -184,12 +184,42 @@ async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = De
         new_item['title'] = item[2]
         new_item['image_url'] = item[1]
         new_item['count'] = item[0]
+
+        message = gerSalesMessage(item)
+        new_item['message'] = message
+
         response[f'item{cnt}'] = new_item
         cnt += 1
 
     json_data = json.dumps(response, ensure_ascii=False)
 
     return json_data
+
+
+def promotinal_text(title, description,search_count):
+
+    return result
+
+def gerSalesMessage(book):
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+    # Set the API key and model name
+    MODEL = "gpt-4o"
+    client = OpenAI(api_key=OPENAI_API_KEY)
+
+    response = client.chat.completions.create(
+        model=MODEL,
+        messages=[
+            {"role": "system",
+             "content": "この本のタイトルと説明文と検索数から、出品を促すテキストを生成してください。ユーザの本棚に眠っている本を出品したくなるようなテキストを生成して欲しいです．"},
+            {"role": "system", "content": "プロモーションテキストのみを生成してください．"},
+            {"role": "system",
+             "content": "100文字程度でお願いします．検索数は需要があるということです．その旨も入れてください．"},
+            {"role": "user", "content": f"タイトル: {book[2]}，説明文: {book[3]}，検索数：{book[0]}件"}
+        ],
+        temperature=0.7,
+    )
+    result = response.choices[0].message.content
+    return result
 
 
 def sentToOpenai(image):
