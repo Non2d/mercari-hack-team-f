@@ -18,7 +18,7 @@ from urllib.parse import quote
 from dotenv import load_dotenv
 # api schema
 from typing import List, Optional
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, RootModel
 import enum
 # openai api
 import os
@@ -143,6 +143,18 @@ async def get_openai_math():
     return math_reasoning
 
 
+from typing import Dict
+class Item(BaseModel):
+    title: str
+    description: str
+    count: int
+    image_url: str
+    message: str
+
+class UploadResponse(RootModel[Dict[str, Item]]):
+    pass
+
+
 # Upload Image
 @router.post("/upload")
 async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
@@ -179,20 +191,22 @@ async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = De
     # Get sales messages for each book
     messages = await getSalesMessage(book_list)
 
-    response = {}
+    items = {}
     cnt = 1
     for item in book_list:
-        new_item = {}
-        new_item['description'] = item[3]
-        new_item['title'] = item[2]
-        new_item['image_url'] = item[1]
-        new_item['count'] = item[0]
-        new_item['message'] = messages[item[2]]
+        new_item = Item(
+            title = item[2],
+            description = item[3],
+            count = item[0],
+            image_url = item[1],
+            message = messages[item[2]]
+        )
 
-        response[f'item{cnt}'] = new_item
+        items[f'item{cnt}'] = new_item
         cnt += 1
 
-    return response
+    return UploadResponse(items)
+
 
 import asyncio
 
@@ -241,7 +255,6 @@ async def getSalesMessage(books):
     messages = {books[i][2]: results[i] for i in range(len(books))}
 
     return messages
-
 
 
 def sentToOpenai(image):
@@ -297,6 +310,9 @@ def sentToOpenai(image):
         )
 
         tags_json = response.choices[0].message.tool_calls[0].function.arguments
+        print("=============================")
+        print(tags_json)
+        print("======================================================")
         return tags_json
 
     def get_book_info(tags_json):
