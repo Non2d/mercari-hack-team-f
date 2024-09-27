@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { judgeSupportLabels } from '../../utils/judgeSupportLabels';
 
 export default function Home() {
-  const { selectedLabel } = useAuth();
+  const { selectedLabel,  GPTResponse } = useAuth();
   const categories = judgeSupportLabels;
 
   const bookTitles = [
@@ -33,6 +33,9 @@ export default function Home() {
     "銀河英雄伝説"
   ];
 
+  console.log(GPTResponse);
+  console.log(selectedLabel);
+
   const judgeComponents = Array.from({ length: 20 }).map((_, index) => ({
     img_url: `http://books.google.com/books/content?id=q0C3DwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api`,
     rank: index + 1,
@@ -43,7 +46,7 @@ export default function Home() {
 
   return (
     <>
-      <MobileHeader title="ランク" />
+      {/* <MobileHeader title="ランク" />
       <MobileHeader2 />
       {judgeComponents
         .filter(data => selectedLabel === 0 || data.category === categories[selectedLabel])
@@ -56,7 +59,7 @@ export default function Home() {
             category={data.category}
             searchCount={data.searchCount}
           />
-        ))}
+        ))} */}
     </>
   );
 }
