@@ -75,82 +75,22 @@ class User(Base):
 #     await db.refresh(db_product)
 #     return db_product
 
-## users
-@router.get("/users")
-async def read_user(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User))
-    db_users = result.scalars().all()
-    return db_users
-
-@router.post("/user")
-async def find_or_create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
-    # uidでユーザーを探す
-    result = await db.execute(select(User).where(User.uid == user.uid))
-    db_user = result.scalars().first()
-
-    if db_user:
-        # すでに存在する場合、そのユーザー情報を返し、200 OKを返す
-        return {"message": "User already exists", "user": db_user}
-
-    # ユーザーが存在しない場合、新しく作成
-    new_user = User(
-        uid=user.uid,
-        name=user.name,
-        email=user.email
-    )
-    db.add(new_user)
-    await db.commit()
-    await db.refresh(new_user)
-
-    # 新しいユーザーが作成されたので、201 Createdを返す
-    return {"message": "New user created", "user": new_user}, 201
-
-
 load_dotenv()
 client=AsyncOpenAI()
-
-@router.get("/openai")
-async def get_openai():
-    completion = await client.chat.completions.create(
-    model="gpt-4o-2024-08-06",
-    messages=[
-        {"role": "user", "content": "Who is Shohei Ohtani?"}
-    ]
-    )
-
-    logger.info(completion.choices[0].message)
-    return {"message": completion.choices[0].message.content}
-
-class Step(BaseModel):
-    explanation: str
-    output: str
-
-class MathReasoning(BaseModel):
-    steps: list[Step]
-    final_answer: str
-
-@router.get("/openai/math")
-async def get_openai_math():
-    completion = await client.beta.chat.completions.parse(
-    model="gpt-4o-2024-08-06",
-    messages=[
-        {"role": "system", "content": "You are a helpful math tutor. Guide the user through the solution step by step."},
-        {"role": "user", "content": "how can I solve 8x + 7 = -23"}
-    ],
-    response_format=MathReasoning,
-    )
-    math_reasoning = completion.choices[0].message.parsed
-    return math_reasoning
 
 
 # Upload Image
 @router.post("/upload")
 async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
+    print("upload file")
     with open(f"static/{file.filename}", "wb") as buffer:
+        print("open file buffer")
         data = await file.read()
         buffer.write(data)
 
     result = sentToOpenai(base64.b64encode(data).decode("utf-8"))
+
+    print("get result")
     # - book_list
     #  - item x
     #     - title
@@ -332,8 +272,6 @@ from sqlalchemy.future import select
 from typing import List
 import logging
 
-
-router = APIRouter()
 logger = logging.getLogger(__name__)
 
 @router.post("/products", status_code=status.HTTP_201_CREATED, response_model=List[ProductResponse])
