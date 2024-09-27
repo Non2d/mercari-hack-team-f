@@ -164,6 +164,7 @@ async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = De
     for book in result:
         title = book['title']
         image_url = book['image_url']
+        description = book['description']
 
         # Get the count
         count_result = await db.execute(select(SearchHistory.count).where(SearchHistory.query==title))
@@ -171,7 +172,7 @@ async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = De
         if count is None:
             count = 0
 
-        book_list.append((count, image_url, title))
+        book_list.append((count, image_url, title, description))
 
     book_list.sort(key=lambda x: x[0], reverse=True)
 
@@ -179,6 +180,7 @@ async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = De
     cnt = 1
     for item in book_list:
         new_item = {}
+        new_item['description'] = item[3]
         new_item['title'] = item[2]
         new_item['image_url'] = item[1]
         new_item['count'] = item[0]
@@ -271,9 +273,11 @@ def sentToOpenai(image):
                     item = book_info['items'][0]
                     volume_info = item['volumeInfo']
                     new_item['title'] = book['title']
+                    new_item['description'] = volume_info.get('description', 'N/A')
                     new_item['image_url'] = volume_info.get('imageLinks', {}).get('thumbnail', 'N/A')
                 else:
                     new_item['title'] = title
+                    new_item['description'] = ""
                     new_item['image_url'] = ""
                     print("No results found for this book.")
             else:
