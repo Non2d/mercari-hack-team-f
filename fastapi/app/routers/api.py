@@ -192,9 +192,7 @@ async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = De
         response[f'item{cnt}'] = new_item
         cnt += 1
 
-    json_data = json.dumps(response, ensure_ascii=False)
-
-    return json_data
+    return response
 
 import asyncio
 
