@@ -176,6 +176,9 @@ async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = De
 
     book_list.sort(key=lambda x: x[0], reverse=True)
 
+    # Get sales messages for each book
+    messages = await getSalesMessage(book_list)
+
     response = {}
     cnt = 1
     for item in book_list:
@@ -184,9 +187,7 @@ async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = De
         new_item['title'] = item[2]
         new_item['image_url'] = item[1]
         new_item['count'] = item[0]
-
-        message = gerSalesMessage(item)
-        new_item['message'] = message
+        new_item['message'] = messages[item[2]]
 
         response[f'item{cnt}'] = new_item
         cnt += 1
@@ -195,31 +196,54 @@ async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = De
 
     return json_data
 
+import asyncio
 
-def promotinal_text(title, description,search_count):
-
-    return result
-
-def gerSalesMessage(book):
+async def getSalesMessage(books):
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
     # Set the API key and model name
     MODEL = "gpt-4o"
-    client = OpenAI(api_key=OPENAI_API_KEY)
+    client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
-    response = client.chat.completions.create(
-        model=MODEL,
-        messages=[
+    async def sendToOpenAI(message):
+        response = await client.chat.completions.create(
+            model=MODEL,
+            messages=message,
+            temperature=0.7,
+        )
+        result = response.choices[0].message.content
+        return result
+
+    # messages = {}
+    # for book in books:
+    #     message=[
+    #         {"role": "system",
+    #          "content": "この本のタイトルと説明文と検索数から、出品を促すテキストを生成してください。ユーザの本棚に眠っている本を出品したくなるようなテキストを生成して欲しいです．"},
+    #         {"role": "system", "content": "プロモーションテキストのみを生成してください．"},
+    #         {"role": "system",
+    #          "content": "100文字程度でお願いします．検索数は需要があるということです．その旨も入れてください．"},
+    #         {"role": "user", "content": f"タイトル: {book[2]}，説明文: {book[3]}，検索数：{book[0]}件"}
+    #     ]
+    #     result = asyncio.run(sendToOpenAI(message))
+    #     messages[book[2]] = result
+
+    tasks = []
+    for book in books:
+        message = [
             {"role": "system",
              "content": "この本のタイトルと説明文と検索数から、出品を促すテキストを生成してください。ユーザの本棚に眠っている本を出品したくなるようなテキストを生成して欲しいです．"},
             {"role": "system", "content": "プロモーションテキストのみを生成してください．"},
             {"role": "system",
              "content": "100文字程度でお願いします．検索数は需要があるということです．その旨も入れてください．"},
             {"role": "user", "content": f"タイトル: {book[2]}，説明文: {book[3]}，検索数：{book[0]}件"}
-        ],
-        temperature=0.7,
-    )
-    result = response.choices[0].message.content
-    return result
+        ]
+        tasks.append(sendToOpenAI(message))
+
+    results = await asyncio.gather(*tasks)
+
+    messages = {books[i][2]: results[i] for i in range(len(books))}
+
+    return messages
+
 
 
 def sentToOpenai(image):
