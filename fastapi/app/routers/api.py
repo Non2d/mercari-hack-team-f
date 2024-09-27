@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, File, UploadFile
 from db import get_db
 from models.products import Product
 from models.buyer import SearchHistory
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, HttpUrl
 from log_conf import logger
 from openai import OpenAI
 import openai
@@ -16,6 +16,13 @@ import json
 import requests
 from urllib.parse import quote
 from dotenv import load_dotenv
+# api schema
+from typing import List, Optional
+from pydantic import BaseModel, Field, HttpUrl
+import enum
+# openai api
+import os
+from openai import AsyncOpenAI
 
 # api schema
 class TestProductCreate(BaseModel):
@@ -46,7 +53,7 @@ class User(Base):
     name = Column(String(255), index=True)
     email = Column(String(255), unique=True, index=True)
 
-    products = relationship('Product', back_populates='user')
+    # products = relationship('Product', back_populates='user')
 
 ## products (test)
 # @router.get("/test-products")
@@ -98,10 +105,6 @@ async def find_or_create_user(user: UserCreate, db: AsyncSession = Depends(get_d
     # 新しいユーザーが作成されたので、201 Createdを返す
     return {"message": "New user created", "user": new_user}, 201
 
-# openai api
-import os
-from dotenv import load_dotenv
-from openai import AsyncOpenAI
 
 load_dotenv()
 client=AsyncOpenAI()
@@ -288,3 +291,100 @@ def sentToOpenai(image):
     book_info = get_book_info(tags_json)
 
     return book_info
+
+
+# ProductStatus Enum（Pydantic用）
+class ProductStatusEnum(str, enum.Enum):
+    DRAFT = 'draft'
+    PUBLISHED = 'published'
+
+# Product作成用スキーマ
+class ProductCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=255)
+    userId: str = Field(..., min_length=1, max_length=255)
+    description: Optional[str] = Field(None, max_length=1000)
+    price: Optional[int] = Field(None)
+    status: Optional[ProductStatusEnum] = Field(ProductStatusEnum.DRAFT)
+    image_url: HttpUrl
+    demand: Optional[int] = Field(None)
+
+    class Config:
+        orm_mode = True
+
+# レスポンス用スキーマ（必要に応じて）
+class ProductResponse(BaseModel):
+    ProductID: int
+    Title: str
+    Description: Optional[str]
+    Price: float
+    Status: ProductStatusEnum
+    ImageURL: HttpUrl
+    demand: Optional[int]
+
+    class Config:
+        orm_mode = True
+# app/routes.py
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.future import select
+from typing import List
+import logging
+
+
+router = APIRouter()
+logger = logging.getLogger(__name__)
+
+@router.post("/products", status_code=status.HTTP_201_CREATED, response_model=List[ProductResponse])
+async def register_products(
+    products: List[ProductCreate],
+    db: AsyncSession = Depends(get_db),
+):
+    db_products = []
+    try:
+        for product in products:
+            # ユーザーの存在を確認
+            result = await db.execute(select(User).where(User.uid == product.userId))
+            user = result.scalars().first()
+            if not user:
+                # ユーザーが存在しない場合は作成
+                user = User(uid=product.userId)
+                db.add(user)
+                await db.commit()
+                await db.refresh(user)
+            
+            db_product = Product(
+                UserID=product.userId,
+                Title=product.title,
+                Description=product.description,
+                Price=product.price,
+                Status=product.status.value,  # Enumの場合
+                ImageURL=product.image_url,
+                demand=product.demand
+            )
+            db_products.append(db_product)
+        
+        db.add_all(db_products)
+        await db.commit()
+        for db_product in db_products:
+            await db.refresh(db_product)
+        
+        return db_products
+    except SQLAlchemyError as e:
+        await db.rollback()
+        logger.error(f"SQLAlchemyError: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail= str(e)
+        )
+    
+# 商品一覧取得
+
+# 
+@router.get("/products", response_model=List[ProductResponse])
+async def get_products(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Product))
+    db_products = result.scalars().all()
+    return db_products
+
