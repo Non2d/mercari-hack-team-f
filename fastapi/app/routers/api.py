@@ -336,7 +336,7 @@ import logging
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=List[ProductResponse])
+@router.post("/products", status_code=status.HTTP_201_CREATED, response_model=List[ProductResponse])
 async def register_products(
     products: List[ProductCreate],
     db: AsyncSession = Depends(get_db),
