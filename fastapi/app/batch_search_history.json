@@ -113,5 +113,12 @@
     {"query": "A BATHING APE キャップ", "count": 3},
     {"query": "OFF-WHITE スニーカー", "count": 9},
     {"query": "STONE ISLAND ジャケット", "count": 7},
-    {"query": "兎の眼", "count": 7}
+    {"query": "兎の眼", "count": 7},
+    {"query": "読んでいない本について堂々と語る方法", "count": 2835},
+{"query": "勉強の哲学", "count": 154363},
+{"query": "本を読む本", "count": 23435},
+{"query": "本を読めなくなった人のための読書論", "count": 2634},
+{"query": "読書について", "count": 182},
+{"query": "積読こそが完全な読書術である", "count": 30432},
+{"query": "その悩み、エピクテトスならこう考える", "count": 3752}
 ]

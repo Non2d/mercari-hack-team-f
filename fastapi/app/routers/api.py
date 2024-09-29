@@ -142,6 +142,12 @@ async def get_openai_math():
     math_reasoning = completion.choices[0].message.parsed
     return math_reasoning
 
+class BookItem(BaseModel):
+    description: str
+    title: str
+    image_url: str
+    count: int
+    message: str
 
 from typing import Dict
 class Item(BaseModel):
@@ -191,22 +197,20 @@ async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = De
     # Get sales messages for each book
     messages = await getSalesMessage(book_list)
 
-    items = {}
+    response = []
     cnt = 1
     for item in book_list:
-        new_item = Item(
-            title = item[2],
-            description = item[3],
-            count = item[0],
-            image_url = item[1],
-            message = messages[item[2]]
-        )
+        new_item = {}
+        new_item['description'] = item[3]
+        new_item['title'] = item[2]
+        new_item['image_url'] = item[1]
+        new_item['count'] = item[0]
+        new_item['message'] = messages[item[2]]
 
-        items[f'item{cnt}'] = new_item
+        response.append(new_item)
         cnt += 1
 
-    return UploadResponse(items)
-
+    return response
 
 import asyncio
 
@@ -245,7 +249,7 @@ async def getSalesMessage(books):
              "content": "この本のタイトルと説明文と検索数から、出品を促すテキストを生成してください。ユーザの本棚に眠っている本を出品したくなるようなテキストを生成して欲しいです．"},
             {"role": "system", "content": "プロモーションテキストのみを生成してください．"},
             {"role": "system",
-             "content": "100文字程度でお願いします．検索数は需要があるということです．その旨も入れてください．"},
+             "content": "100文字程度でお願いします．検索数に言及してください．"},
             {"role": "user", "content": f"タイトル: {book[2]}，説明文: {book[3]}，検索数：{book[0]}件"}
         ]
         tasks.append(sendToOpenAI(message))
