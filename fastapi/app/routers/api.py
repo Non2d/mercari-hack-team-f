@@ -18,7 +18,7 @@ from urllib.parse import quote
 from dotenv import load_dotenv
 # api schema
 from typing import List, Optional
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, RootModel
 import enum
 # openai api
 import os
@@ -149,6 +149,18 @@ class BookItem(BaseModel):
     count: int
     message: str
 
+from typing import Dict
+class Item(BaseModel):
+    title: str
+    description: str
+    count: int
+    image_url: str
+    message: str
+
+class UploadResponse(RootModel[Dict[str, Item]]):
+    pass
+
+
 # Upload Image
 @router.post("/upload")
 async def create_upload_file(file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
@@ -249,7 +261,6 @@ async def getSalesMessage(books):
     return messages
 
 
-
 def sentToOpenai(image):
     load_dotenv()
 
@@ -303,6 +314,9 @@ def sentToOpenai(image):
         )
 
         tags_json = response.choices[0].message.tool_calls[0].function.arguments
+        print("=============================")
+        print(tags_json)
+        print("======================================================")
         return tags_json
 
     def get_book_info(tags_json):
