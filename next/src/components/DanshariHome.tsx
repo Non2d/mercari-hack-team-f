@@ -42,7 +42,7 @@ const DanshariHome = () => {
             const data = await response.json();
             setGPTResponse(data);
             setIsGPTReady(true);
-            
+
             const productsFromData = data.map((item: any) => ({
               "title": item.title,
               "userId": user?.uid ?? "guest_user",
@@ -52,7 +52,7 @@ const DanshariHome = () => {
               "image_url": item.image_url,
               "demand": 0
             }));
-            
+
             const response2 = await fetch('http://localhost:8080/products', {
               method: 'POST',
               headers: {
@@ -60,7 +60,7 @@ const DanshariHome = () => {
               },
               body: JSON.stringify(productsFromData),
             });
-            
+
           } else {
             throw new Error('Failed to upload photo');
           }
@@ -238,7 +238,10 @@ const DanshariHome = () => {
           <footer className="bg-white p-4 fixed bottom-0 w-full">
             <div className="flex justify-center">
               <div className="flex flex-col items-center w-1/2 mx-2">
-                <button className="text-lg bg-blue-500 text-white py-2 px-4 rounded w-full">出品下書きへ</button>
+                <button
+                  className="text-lg bg-blue-500 text-white py-2 px-4 rounded w-full"
+                  onClick={() => toast.success("出品の下書きを作成しました")}
+                >出品下書きへ</button>
               </div>
               <a href="/danshari-box">
                 <button className="text-lg bg-blue-500 text-white py-2 px-4 rounded w-full">
