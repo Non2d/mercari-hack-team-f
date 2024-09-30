@@ -14,7 +14,7 @@ const MobileHeader2: React.FC<MobileHeaderProps> = ({ labels = judgeSupportLabel
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '41px', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+    <div style={{ position: 'relative', width: '100%', height: '20px', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
       {/* <div style={{ position: 'relative', width: '473px', height: '1px', top: '10px', left: '0' }}>
         <img style={{ position: 'absolute', width: '100%', height: '1px' }} alt="Vector" src={"vector2"} />
       </div> */}

@@ -49,11 +49,10 @@ export default function Homes() {
                 <div className="flex justify-center">
                     <div className="flex flex-col items-center">
                         <a href="/" className="flex flex-col items-center bg-blue-500 text-white py-2 px-4 rounded">
-                            <Home size={14} />
-                            <span style={{fontSize:"10px"}}>ホーム</span>
+                            <Home size={28} />
                         </a>
                     </div>
-                    <div className="flex flex-col items-center w-1/2 mx-2">
+                    <div className="flex flex-col items-center mx-2">
                         <button
                             className="text-lg bg-blue-500 text-white py-2 px-4 rounded w-full"
                             onClick={() => toast.success("出品の下書きを作成しました")}

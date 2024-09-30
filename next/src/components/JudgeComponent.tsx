@@ -34,18 +34,17 @@ export const JudgeComponent = ({ img_url, rank, title, category, searchCount }: 
                         <div className="absolute top-[42px] left-[19px] flex flex-col items-center [font-family:'Roboto-SemiBold',Helvetica] font-semibold text-black text-lg tracking-[0] leading-4">
                             <div>{rank}</div>
                             <div className="flex items-center justify-center mt-2">
-                                <input 
-                                    type="checkbox" 
+                                <input
+                                    type="checkbox"
                                     className="w-4 h-4 bg-gray-300 rounded-full focus:outline-none"
                                     checked={isChecked}
-                                    onChange={handleCheckboxChange} 
+                                    onChange={handleCheckboxChange}
                                 />
                             </div>
                         </div>
-                        <div className="top-[22px] absolute h-4 left-[161px] [font-family:'Roboto-Regular',Helvetica] font-normal text-black text-sm tracking-[0] leading-4 whitespace-nowrap">
-                            {title}
-                        </div>
-                        <div className="w-3/5 top-14 absolute h-4 left-[161px] [font-family:'Roboto-Regular',Helvetica] font-normal text-black text-sm tracking-[0] leading-4 whitespace-normal">
+                        <div className="w-3/5 top-[22px] absolute h-4 left-[150px] [font-family:'Roboto-Regular',Helvetica] font-normal text-black text-sm tracking-[0] leading-4 whitespace-normal">
+                            <span className="text-blue-500 font-bold">{title}</span>
+                            <br />
                             {category}
                         </div>
                         {/* <div className="top-[90px] absolute h-4 left-[161px] [font-family:'Roboto-Regular',Helvetica] font-normal text-black text-sm tracking-[0] leading-4 whitespace-nowrap">

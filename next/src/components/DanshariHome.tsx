@@ -223,7 +223,7 @@ const DanshariHome = () => {
       {isJudge && (
         <div>
           <MobileHeader2 />
-          <div className="container mx-auto p-4 pb-20"> {/* ここでパディングを追加 */}
+          <div className="container mx-auto pb-20"> {/* ここでパディングを追加 */}
             {judgeComponents
               .filter((data: JudgeComponentData) => selectedLabel === 0 || data.category === categories[selectedLabel])
               .map((data: JudgeComponentData, index: number) => (
