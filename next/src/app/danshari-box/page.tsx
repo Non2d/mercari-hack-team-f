@@ -38,8 +38,8 @@ export default function Homes() {
     return (
         <>
             <MobileHeader title="断捨離BOX" />
-            <main>
-                <div className="flex justify-center items-start min-h-screen">
+            <main className="pb-20">
+                <div className="flex justify-center items-start">
                     <div className="grid grid-cols-2 gap-4 p-4">
                         {boxItems}
                     </div>
@@ -48,9 +48,9 @@ export default function Homes() {
             <footer className="bg-white p-4 fixed bottom-0 w-full">
                 <div className="flex justify-center">
                     <div className="flex flex-col items-center">
-                        <a href="/" className="flex flex-col items-center">
-                            <Home size={24} />
-                            <span className="text-xs">ホーム</span>
+                        <a href="/" className="flex flex-col items-center bg-blue-500 text-white py-2 px-4 rounded">
+                            <Home size={14} />
+                            <span style={{fontSize:"10px"}}>ホーム</span>
                         </a>
                     </div>
                     <div className="flex flex-col items-center w-1/2 mx-2">

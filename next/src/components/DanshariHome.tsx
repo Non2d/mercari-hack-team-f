@@ -158,7 +158,7 @@ const DanshariHome = () => {
                   style={{ width: '100%', height: '100%' }}
                 />
                 <button
-                  className="w-full bg-white border border-gray-300 rounded-lg p-3 mb-3 text-left"
+                  className="w-full bg-white border border-gray-300 rounded-lg p-3 mt-3 mb-3 text-left"
                   onClick={() => window.location.href = '/danshari-box'}
                 >
                   断捨離BOXをみる
@@ -223,18 +223,20 @@ const DanshariHome = () => {
       {isJudge && (
         <div>
           <MobileHeader2 />
-          {judgeComponents
-            .filter((data: JudgeComponentData) => selectedLabel === 0 || data.category === categories[selectedLabel])
-            .map((data: JudgeComponentData, index: number) => (
-              <JudgeComponent
-                key={index}
-                img_url={data.img_url}
-                rank={data.rank}
-                title={data.title}
-                category={data.message}
-                searchCount={data.searchCount}
-              />
-            ))}
+          <div className="container mx-auto p-4 pb-20"> {/* ここでパディングを追加 */}
+            {judgeComponents
+              .filter((data: JudgeComponentData) => selectedLabel === 0 || data.category === categories[selectedLabel])
+              .map((data: JudgeComponentData, index: number) => (
+                <JudgeComponent
+                  key={index}
+                  img_url={data.img_url}
+                  rank={data.rank}
+                  title={data.title}
+                  category={data.message}
+                  searchCount={data.searchCount}
+                />
+              ))}
+          </div>
           <footer className="bg-white p-4 fixed bottom-0 w-full">
             <div className="flex justify-center">
               <div className="flex flex-col items-center w-1/2 mx-2">
