@@ -15,9 +15,9 @@ const MobileHeader2: React.FC<MobileHeaderProps> = ({ labels = judgeSupportLabel
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '41px', overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-      <div style={{ position: 'relative', width: '473px', height: '1px', top: '10px', left: '0' }}>
+      {/* <div style={{ position: 'relative', width: '473px', height: '1px', top: '10px', left: '0' }}>
         <img style={{ position: 'absolute', width: '100%', height: '1px' }} alt="Vector" src={"vector2"} />
-      </div>
+      </div> */}
       <div style={{ position: 'relative', width: '473px', height: '40px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', height: '25px', top: '15px', left: '4px' }}>
           {labels.map((label, index) => (

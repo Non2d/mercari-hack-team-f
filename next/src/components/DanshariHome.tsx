@@ -39,25 +39,27 @@ const DanshariHome = () => {
           });
 
           if (response.ok) {
-            console.log('AAA');
             const data = await response.json();
             setGPTResponse(data);
-            console.log(data);
             setIsGPTReady(true);
-            for (const item of data) {
-              const response2 = await fetch('http://localhost:8080/upload', {
-                method: 'POST',
-                body: JSON.stringify({
-                  "title": item.title,
-                  "userId": user?.uid,
-                  "description": item.message,
-                  "price": 0,
-                  "status": "box",
-                  "image_url": item.image_url,
-                  "demand": 0
-                }),
-              });
-            }
+            
+            const productsFromData = data.map((item: any) => ({
+              "title": item.title,
+              "userId": user?.uid ?? "guest_user",
+              "description": item.message,
+              "price": 0,
+              "status": "draft",
+              "image_url": item.image_url,
+              "demand": 0
+            }));
+            
+            const response2 = await fetch('http://localhost:8080/products', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(productsFromData),
+            });
             
           } else {
             throw new Error('Failed to upload photo');
@@ -79,7 +81,7 @@ const DanshariHome = () => {
   const { selectedLabel } = useAuth();
   const categories = judgeSupportLabels;
 
-  console.log(GPTResponse);
+  // console.log(GPTResponse);
 
   // const bookTitles = [
   //   "冒険の始まり",
@@ -151,7 +153,7 @@ const DanshariHome = () => {
                   </p>
                 </div> */}
                 <img
-                  src={'/danshari/danshari-style.png'} // nullの場合の代替URLを指定
+                  src={'/icons/danshari-style.png'} // nullの場合の代替URLを指定
                   alt={`Danshari`}
                   style={{ width: '100%', height: '100%' }}
                 />
