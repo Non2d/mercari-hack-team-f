@@ -14,9 +14,9 @@ export default function Homes() {
 
     const [boxItems, setBoxItems] = useState([]);
 
-    // const { selectedLabel } = useAuth();
+    const { selectedLabel, GPTResponse } = useAuth();
 
-    // console.log(selectedLabel); //どこかで初期化しちゃってる
+    console.log(selectedLabel, GPTResponse); //どこかで初期化しちゃってる
 
     const getDanshariBox = async () => {
 
@@ -24,7 +24,6 @@ export default function Homes() {
             method: "GET",
         });
         const data = await response.json();
-        console.log(data);
         const items = data.map((item: any) => (
             <DanshariBoxComponent key={item.ProductID} product_name={item.Title} img_url={item.ImageURL} prop2={item.category} prop3={item.description} />
         ));

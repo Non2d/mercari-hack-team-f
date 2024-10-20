@@ -19,12 +19,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [selectedLabel, setSelectedLabel] = useState<number>(0);
   const [GPTResponse, setGPTResponse] = useState<any>([]);
 
-  // useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
-  //     setUser(user);
-  //   });
-  //   return () => unsubscribe();
-  // }, []);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, selectedLabel, setSelectedLabel, GPTResponse, setGPTResponse}}>

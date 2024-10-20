@@ -41,6 +41,7 @@ const DanshariHome = () => {
           if (response.ok) {
             const data = await response.json();
             setGPTResponse(data);
+            console.log("Set GPT Response", data);
             setIsGPTReady(true);
 
             const productsFromData = data.map((item: any) => ({
